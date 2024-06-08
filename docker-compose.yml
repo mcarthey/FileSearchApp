@@ -1,0 +1,48 @@
+version: '3.7'
+services:
+  elasticsearch:
+    build:
+      context: .
+      dockerfile: Dockerfile.elasticsearch
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 2g
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+
+  backend:
+    build:
+      context: ./FileSearchAPI
+      dockerfile: Dockerfile
+    container_name: file_search_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5000:5000"
+    depends_on:
+      - elasticsearch
+
+  frontend:
+    build:
+      context: ./file-search-app
+      dockerfile: Dockerfile
+    container_name: file_search_app
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+volumes:
+  esdata:
+    driver: local
