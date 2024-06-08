@@ -11,15 +11,12 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    mem_limit: 2g
     volumes:
       - esdata:/usr/share/elasticsearch/data
       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-
+    networks:
+      - app-network
+      
   backend:
     build:
       context: ./FileSearchAPI
@@ -32,6 +29,8 @@ services:
       - "5000:5000"
     depends_on:
       - elasticsearch
+    networks:
+      - app-network
 
   frontend:
     build:
@@ -42,6 +41,12 @@ services:
       - "4200:80"
     depends_on:
       - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   esdata:

@@ -1,47 +1,50 @@
 using Microsoft.AspNetCore.Mvc;
 using Nest;
-using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/[controller]")]
 public class FileSearchController : ControllerBase
 {
-    private readonly ElasticClient _client;
-    private readonly FileIndexer _fileIndexer;
+    private readonly IElasticClient _elasticClient;
 
-    public FileSearchController(ElasticClient client, FileIndexer fileIndexer)
+    public FileSearchController(IElasticClient elasticClient)
     {
-        _client = client;
-        _fileIndexer = fileIndexer;
+        _elasticClient = elasticClient;
+    }
+
+    [HttpGet("ping")]
+    public IActionResult Ping()
+    {
+        var response = _elasticClient.Ping();
+        if (response.IsValid)
+        {
+            return Ok("Elasticsearch connection is valid");
+        }
+        return StatusCode(500, "Elasticsearch connection is invalid");
     }
 
     [HttpGet("search")]
-    public async Task<IActionResult> SearchFiles([FromQuery] string query)
+    public IActionResult Search([FromQuery] string query)
     {
-        var response = await _client.SearchAsync<dynamic>(s => s
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return BadRequest("The query field is required.");
+        }
+
+        var response = _elasticClient.Search<object>(s => s
+            .Index("files")
             .Query(q => q
-                .MultiMatch(m => m
+                .QueryString(qs => qs
                     .Query(query)
-                    .Fields(f => f
-                        .Field("FileName")
-                        .Field("Content")
-                    )
                 )
             )
         );
 
+        if (!response.IsValid)
+        {
+            return BadRequest(response.OriginalException.Message);
+        }
+
         return Ok(response.Documents);
     }
-
-    [HttpPost("index")]
-    public async Task<IActionResult> IndexFile([FromBody] FileIndexRequest request)
-    {
-        await _fileIndexer.IndexFile(request.FilePath);
-        return Ok();
-    }
-}
-
-public class FileIndexRequest
-{
-    public string FilePath { get; set; }
 }
