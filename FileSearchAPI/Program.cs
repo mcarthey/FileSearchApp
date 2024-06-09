@@ -3,7 +3,7 @@ using Nest;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var settings = new ConnectionSettings(new Uri("http://elasticsearch:9200")) // Use service name here
+var settings = new ConnectionSettings(new Uri("http://elasticsearch:9200"))
     .DefaultIndex("files");
 
 var client = new ElasticClient(settings);
@@ -23,9 +23,14 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
-builder.WebHost.UseUrls("http://*:5000"); // Ensure only port 5000 is used
+// Explicitly set the URL to bind to port 5000
+builder.WebHost.UseUrls("http://*:5000");
 
 var app = builder.Build();
+
+// Log configuration values
+app.Logger.LogInformation("ASPNETCORE_ENVIRONMENT: " + builder.Environment.EnvironmentName);
+app.Logger.LogInformation("ASPNETCORE_URLS: " + Environment.GetEnvironmentVariable("ASPNETCORE_URLS"));
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

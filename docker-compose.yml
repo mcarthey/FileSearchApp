@@ -16,7 +16,7 @@ services:
       - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     networks:
       - app-network
-      
+
   backend:
     build:
       context: ./FileSearchAPI
@@ -46,7 +46,7 @@ services:
 
 networks:
   app-network:
-    driver: bridge
+    external: true
 
 volumes:
   esdata:
