@@ -23,8 +23,11 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
-// Explicitly set the URL to bind to port 5000
-builder.WebHost.UseUrls("http://*:5000");
+// Configure Kestrel to listen on port 5000
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(5000);
+});
 
 var app = builder.Build();
 

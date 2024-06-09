@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FileSearchService } from '../file-search.service';  // Adjusted path
+import { FileSearchService } from '../file-search.service';
 
 @Component({
   selector: 'app-file-search',
@@ -12,9 +12,16 @@ export class FileSearchComponent {
 
   constructor(private fileSearchService: FileSearchService) { }
 
-  onSearch() {
-    this.fileSearchService.searchFiles(this.query).subscribe(results => {
-      this.results = results;
-    });
+  searchFiles(): void {
+    if (this.query.trim()) {
+      this.fileSearchService.searchFiles(this.query).subscribe(
+        (data) => {
+          this.results = data;
+        },
+        (error) => {
+          console.error('Error occurred:', error);
+        }
+      );
+    }
   }
 }

@@ -6,11 +6,11 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class FileSearchService {
-  private apiUrl = 'http://file_search_api:5000/api/filesearch';  // Use service name instead of localhost
+  private apiUrl = 'http://localhost:5000/api/filesearch'; // Ensure this URL is correct
 
   constructor(private http: HttpClient) { }
 
-  searchFiles(query: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/search`, { params: { query } });
+  searchFiles(query: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/search?query=${query}`);
   }
 }
