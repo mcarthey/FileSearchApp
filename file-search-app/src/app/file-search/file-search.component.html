@@ -5,7 +5,9 @@
 <div *ngIf="results.length > 0">
   <ul>
     <li *ngFor="let result of results">
-      {{ result }}
+      <strong>File Name:</strong> {{ result.FileName }} <br />
+      <strong>Path:</strong> {{ result.Path }} <br />
+      <strong>Content:</strong> {{ result.Content }}
     </li>
   </ul>
 </div>
